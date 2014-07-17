@@ -50,11 +50,15 @@ def get_timetable
 
     better_timetable = []
 
+    n = 0
+
     timetable.each_with_index do |hour, index|
       hour.zip([:mon, :tue, :wed, :thu, :fri]).each do |slot, day|
         slot.each do |lesson|
           lesson[:day] = day
           lesson[:hour] = index + 8
+          lesson[:id] = n
+          n += 1
           better_timetable << lesson
         end
       end

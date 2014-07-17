@@ -1,44 +1,56 @@
-<% content_for :header do %>
-  <h1>Buck's timetable builder</h1>
-<% end %>
 
-<div class="well">
-  <input id="course-name">
-  <button id="add-course">add course</button>
-  <div id="courses"></div>
-</div>
+    <div class="row">
+      <div class="col-xs-2">
+              <h1>timetable</h1>
+      </div>
 
-<div>
-  <table class="table table-striped table-condensed">
-    <tbody>
-      <% days = %w(mon tue wed thu fri) %>
-      <tr>
-        <td class="col-sm-1"></td>
-        <% days.each do |day| %>
-          <th class="col-sm-2"><%= day %></th>
-        <% end %>
-      </tr>
+      <div class="col-xs-10">
+        <div class="well">
+          <input id="course-name">
+          <button id="add-course" class="btn btn-default">add course</button>
+          <button id="download-ical" class="btn btn-primary">download</button>
+          <div id="courses" style="display: inline;"></div>
+          </div>
 
-      <% (8..18).each do |hour| %>
+        </div>
+      </div>
+    </div>
+
+
+
+<div class="row">
+  <div class="col-xs-12">
+    <table class="table table-striped table-condensed">
+      <tbody>
+        <% days = %w(mon tue wed thu fri) %>
         <tr>
-          <th>
-            <%= hour %>
-          </th>
+          <td class="col-sm-1"></td>
           <% days.each do |day| %>
-            <td class="timeslot" data-hour="<%= hour %>" data-day="<%= day %>">
-            </td>
+            <th class="col-sm-2"><%= day %></th>
           <% end %>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+
+        <% (8..17).each do |hour| %>
+          <tr>
+            <th>
+              <%= hour %>:00
+            </th>
+            <% days.each do |day| %>
+              <td class="timeslot" data-hour="<%= hour %>" data-day="<%= day %>">
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 
 
 
 <script>
-  var lesson_template = "<div class='lesson' data-name='<%%= item.name %>'><p><b><%%= item.name %></b> <a>(remove)</a></p><p><i><%%= item.location %></i></p><p><%%= item.info %></p></div>";
+  var lesson_template = "<div class='lesson' data-name='<%%= item.name %>' data-id='<%%= item.id %>'><p><b><%%= item.name %></b> <a>(remove)</a></p><p><i><%%= item.location %></i>. <%%= item.info %></p></div>";
 
   var putItemInCalendar = function (item) {
     var place = _($(".timeslot")).filter(function(x) {
@@ -62,11 +74,7 @@
       $.get("/courses/"+course_name, {}, function (data) {
         $("#add-course").html("add course");
         _(data).each(putItemInCalendar);
-        var new_course_label = $("<ul class='dropdown-menu' role='menu'>" +
-            course_name+
-            "<li class='delete'>delete</li>" +
-            "<li class='refresh'>refresh</li>" +
-            "</ul>")
+        var new_course_label = $("<a class='btn btn-danger'>delete " + course_name + "</a>");
         $("#courses").append(new_course_label);
         new_course_label.on("click", function (event) {
           removeCourse(course_name, event);
