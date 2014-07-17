@@ -12,7 +12,13 @@ def process_cell(list)
     elsif item.gsub(/[\u0080-\u00ff]/, "").strip == ""
       next
     else
-      # current[:name] += " " + item
+      # unless item.include? "Lecture"
+      #   current = {}
+      #   next
+      # end
+
+      current[:info] ||= ""
+      current[:info] += item
     end
   end
 
@@ -57,5 +63,3 @@ def get_timetable
     better_timetable
   end
 end
-
-p get_timetable

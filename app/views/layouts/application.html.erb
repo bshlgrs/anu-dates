@@ -8,7 +8,20 @@
 </head>
 <body>
 
+<div class="container">
+    <div class="row">
+    <div class="col-xs-12">
+        <div class="page-header">
+            <%= yield :header %>
+        </div>
+    </div>
+    </div>
+
+    <div class="row">
+    <div class="span10">
 <%= yield %>
+</div>
+</div>
 
 </body>
 </html>

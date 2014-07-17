@@ -1,7 +1,106 @@
-<h1>Buck's timetable builder</h1>
+<% content_for :header do %>
+  <h1>Buck's timetable builder</h1>
+<% end %>
 
-What courses are you doing?
-<form method="POST" action="/anu_s2.ics">
-  <input name="things">
-  <input type="submit">
-</form>
+<div class="well">
+  <input id="course-name">
+  <button id="add-course">add course</button>
+  <div id="courses"></div>
+</div>
+
+<div>
+  <table class="table table-striped table-condensed">
+    <tbody>
+      <% days = %w(mon tue wed thu fri) %>
+      <tr>
+        <td class="col-sm-1"></td>
+        <% days.each do |day| %>
+          <th class="col-sm-2"><%= day %></th>
+        <% end %>
+      </tr>
+
+      <% (8..18).each do |hour| %>
+        <tr>
+          <th>
+            <%= hour %>
+          </th>
+          <% days.each do |day| %>
+            <td class="timeslot" data-hour="<%= hour %>" data-day="<%= day %>">
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+<script>
+  var lesson_template = "<div class='lesson' data-name='<%%= item.name %>'><p><b><%%= item.name %></b> <a>(remove)</a></p><p><i><%%= item.location %></i></p><p><%%= item.info %></p></div>";
+
+  var putItemInCalendar = function (item) {
+    var place = _($(".timeslot")).filter(function(x) {
+      return $(x).data("day") == item.day &&
+                  $(x).data("hour") == item.hour; })[0];
+    var thing = $(_.template(lesson_template, { item: item }));
+    $(thing.find("a")[0]).on("click", function (event) {
+      event.preventDefault();
+      thing.remove();
+    })
+    $(place).append(thing);
+  }
+
+  var courses = [];
+
+  var getCourse = function() {
+    var course_name = $("#course-name").val().toUpperCase();
+    if (course_name.length == 8 && courses.indexOf(course_name) === -1) {
+      $("#add-course").html("adding...");
+      $("#course-name").val("");
+      $.get("/courses/"+course_name, {}, function (data) {
+        $("#add-course").html("add course");
+        _(data).each(putItemInCalendar);
+        var new_course_label = $("<ul class='dropdown-menu' role='menu'>" +
+            course_name+
+            "<li class='delete'>delete</li>" +
+            "<li class='refresh'>refresh</li>" +
+            "</ul>")
+        $("#courses").append(new_course_label);
+        new_course_label.on("click", function (event) {
+          removeCourse(course_name, event);
+        })
+        courses.push(course_name);
+      });
+    }
+  }
+
+  var removeCourse = function(course_name, event) {
+    event.preventDefault();
+    event.target.remove();
+    courses = _(courses).without(course_name);
+    $(".lesson").each(function(index, lesson) {
+      var $lesson = $(lesson);
+      if ($lesson.data("name") == course_name) {
+        $lesson.remove();
+      }
+    });
+
+
+  }
+
+  $(function() {
+    $(document).keydown(function(e) {
+      if (e.which == 13) {
+        event.preventDefault();
+        getCourse();
+      }
+    });
+
+    $("#add-course").on("click", function(event) {
+      event.preventDefault();
+      getCourse();
+    })
+  })
+</script>

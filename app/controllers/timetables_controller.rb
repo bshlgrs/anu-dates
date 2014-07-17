@@ -1,10 +1,15 @@
 class TimetablesController < ApplicationController
   def whole_timetable
-    @timetable ||= eval(File.read(Rails.root.to_s+"/data/timetable.rubyhash"))
+    require Rails.root.to_s + "/data/parse_calendar.rb"
+    @timetable ||= get_timetable
   end
 
   def new
     render :new
+  end
+
+  def course
+    render :json => whole_timetable.select { |x| params[:course].upcase == x[:name]}
   end
 
   def create
@@ -23,6 +28,7 @@ class TimetablesController < ApplicationController
         if date < DateTime.new(2014, 9, 7) || date > DateTime.new(2014, 9, 18)
           calendar.event do |e|
             e.summary = lesson[:name]
+            e.description = lesson[:info]
             e.dtstart = date.strftime("%Y%m%dT%H%M%S")
             e.dtend = (date + 1.hours).strftime("%Y%m%dT%H%M%S")
             e.location = lesson[:location]
@@ -31,10 +37,7 @@ class TimetablesController < ApplicationController
 
         date += 1.weeks
       end
-
-
     end
-
 
     respond_to do |wants|
       wants.ics do
