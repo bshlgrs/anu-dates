@@ -50,7 +50,7 @@
 
 
 <script>
-  var lesson_template = "<div class='lesson' data-name='<%%= item.name %>' data-id='<%%= item.id %>'><p><b><%%= item.name %></b> <a>(remove)</a></p><p><i><%%= item.location %></i>. <%%= item.info %></p></div>";
+  var lesson_template = "<div class='lesson' data-name='<%%= item.name %>' data-id='<%%= item.id %>'><p><b><%%= item.name %></b>. <i><%%= item.location %></i>. <%%= item.info %> <a>(remove)</a></p></div>";
 
   var putItemInCalendar = function (item) {
     var place = _($(".timeslot")).filter(function(x) {
